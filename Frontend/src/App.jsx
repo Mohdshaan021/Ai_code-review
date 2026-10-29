@@ -9,6 +9,9 @@ import axios from 'axios'
 import './App.css'
 
 const Editor = editorModule.default
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || 'https://ai-code-review-indol-one.vercel.app'
+).replace(/\/+$/, '')
 const starterCode = `function sum() {
   return 1 + 1
 }`
@@ -30,12 +33,13 @@ function App() {
     setError('')
 
     try {
-      const response = await axios.post('/ai/get-review', { code }, { timeout: 90000 })
+      const response = await axios.post(`${API_BASE_URL}/ai/get-review`, { code }, { timeout: 90000 })
       setReview(response.data.review)
     } catch (requestError) {
       setReview('')
       setError(
         requestError.response?.data?.message ||
+        (typeof requestError.response?.data === 'string' ? requestError.response.data : '') ||
         'Could not generate a review. Check that the backend is running and try again.'
       )
     } finally {
